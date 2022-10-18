@@ -5,7 +5,7 @@ board.rs - sets up the board and provides access to the peices
 */
 
 // types of chess peices
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PeiceType {
     Pawn,
     Rook,
@@ -15,7 +15,7 @@ pub enum PeiceType {
     Queen,
     Empty,
 }
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Team {
     Black,
     White,
@@ -32,7 +32,7 @@ impl Team {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum Direction {
     Up,
     Down,
@@ -128,17 +128,17 @@ impl Board {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Peice {
     pub peice_type: PeiceType,
     pub team: Team,
     pub dir: Direction,
-    pub x_pos: u8,
-    pub y_pos: u8,
+    pub x_pos: usize,
+    pub y_pos: usize,
 }
 
 impl Peice {
-    fn new(x: u8, y: u8, _peice_type: PeiceType, _team: Team, _dir: Direction) -> Peice {
+    fn new(x: usize, y: usize, _peice_type: PeiceType, _team: Team, _dir: Direction) -> Peice {
         Peice {
             peice_type: _peice_type,
             team: _team,

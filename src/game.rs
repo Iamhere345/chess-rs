@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use crate::board::*;
 use crate::rules::can_move_peice;
 
+#[derive(Clone)]
 pub struct GameHandler {
     turn: Team,
     pub board: Board,
@@ -30,7 +31,15 @@ impl GameHandler {
         }
     }
 
-    pub fn end_turn(mut self) {
+    pub fn is_over(&self) -> bool {
+        if self.game_over {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    pub fn end_turn(&mut self) {
         self.turn = self.turn.flip();
     }
 
@@ -67,7 +76,7 @@ impl GameHandler {
     }
 
     pub fn move_peice(
-        mut self,
+        &mut self,
         peice_coord: BoardCoord,
         move_coord: BoardCoord,
     ) -> Result<(), String> {
@@ -104,19 +113,44 @@ impl GameHandler {
                 return Err("Cannot take your own peice".to_string());
             }
 
+            println!("past checks");
+
             // checks if the peice at the target coord is the opposite team
             if self.board.board[move_coord.x][move_coord.y].is_some()
                 && self.board.board[move_coord.x][move_coord.y].unwrap().team != self.turn
             {
+
+                println!("### MOVE LEGAL ###");
+
                 let take_result = self.take_peice(&move_coord);
 
                 if take_result.is_err() {
                     return Err(take_result.unwrap_err());
                 }
 
+                peice.x_pos = move_coord.x;
+                peice.y_pos = move_coord.y;
+
                 self.board.board[move_coord.x][move_coord.y] = Some(peice);
+                self.board.board[peice_coord.x][peice_coord.y] = None;
+
+                println!("***PEICE MOVED***");
 
                 self.end_turn();
+            } else if self.board.board[move_coord.x][move_coord.y].is_none() {
+                
+                println!("### MOVE LEGAL ###");
+
+                peice.x_pos = move_coord.x;
+                peice.y_pos = move_coord.y;
+
+                self.board.board[move_coord.x][move_coord.y] = Some(peice);
+                self.board.board[peice_coord.x][peice_coord.y] = None;
+                
+                self.end_turn();
+
+                println!("***PEICE MOVED***");
+
             }
         }
 

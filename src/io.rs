@@ -1,6 +1,6 @@
 /*
 
-io.rs - parses input (e.g >ROOK E2)
+io.rs - Handles input (duh)
 
 */
 
@@ -8,15 +8,6 @@ use std::io::{self, Write};
 
 // TODO windows input compatability
 pub fn handle_input() -> Result<String, ()> {
-    let commands = [
-        String::from("help"),
-        String::from("display"),
-        String::from("move"),
-        String::from("load"),
-        String::from("save"),
-        String::from("quit"),
-        String::from("end"),
-    ];
 
     //print!(">");
 
@@ -36,11 +27,6 @@ pub fn handle_input() -> Result<String, ()> {
         println!("io error: {}", read_result.unwrap_err());
         return Err(());
     }
-
-    let str_slice = &input.trim()[0..4];
-
-    print!("input slice: '{}'\n", str_slice);
-    println!("input: '{}'", input.trim());
 
     Ok(input)
 }
