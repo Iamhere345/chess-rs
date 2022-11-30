@@ -1,19 +1,18 @@
 /*
 
-io.rs - Handles input (duh)
+input.rs - Handles input (duh)
 
 */
 
 use std::io::{self, Write};
 
 // TODO windows input compatability
-pub fn handle_input() -> Result<String, ()> {
-
+pub fn handle_input(prompt: String) -> Result<String, ()> {
     //print!(">");
 
     let mut input = String::new();
 
-    print!("> ");
+    print!("{}", prompt);
     let flush_result = io::stdout().flush();
 
     if flush_result.is_err() {

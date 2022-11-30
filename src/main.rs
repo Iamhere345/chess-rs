@@ -1,14 +1,13 @@
 use std::collections::HashMap;
-use std::process::ExitCode;
 
 use game::GameHandler;
-use io::handle_input;
+use input::handle_input;
 
 use crate::board::BoardCoord;
 
 pub mod board;
 pub mod game;
-pub mod io;
+pub mod input;
 pub mod rules;
 
 fn main() {
@@ -24,7 +23,7 @@ fn main() {
     print!("type 'help' for a list of commands\nCHESS-RS version 0.1.0\n");
 
     'main: while !game.is_over() {
-        let input_result = handle_input();
+        let input_result = handle_input(format!("{}>", game.playing_team()));
 
         if input_result.is_err() {
             continue;
@@ -59,8 +58,6 @@ fn main() {
             let peice_arg = &input[5..7];
             let dest_arg = &input[8..10];
 
-            println!("peice: {}", peice_arg);
-
             fn convert_input_to_char(arg: &&str) -> Result<(usize, usize), ()> {
                 let mut x_output: usize = 0;
                 let mut y_output: usize = 0;
@@ -70,9 +67,6 @@ fn main() {
                         println!("Error: expected chess co-ordinate (e.g A1 or C3)");
                         return Err(());
                     } else if i == 0 && v.is_alphabetic() {
-
-                        println!("alpha v is {}", v);
-
                         // there might be a better way to do this. Just sayin'
                         if v.eq_ignore_ascii_case(&'A') {
                             x_output = 0;
@@ -97,9 +91,6 @@ fn main() {
                     }
 
                     if i == 1 && v.is_numeric() {
-
-                        println!("num v is {}", v);
-
                         let int_result = v.to_string().parse::<usize>();
                         let char_as_int: usize;
 
@@ -109,8 +100,6 @@ fn main() {
                         } else {
                             char_as_int = int_result.unwrap();
                         }
-
-                        println!("char as int: {}", char_as_int);
 
                         if char_as_int > 8 {
                             println!("Error: a chess board only extends to co-ordinate 8");
@@ -125,8 +114,6 @@ fn main() {
                         y_output = char_as_int - 1;
                     }
                 }
-
-                println!("x output: {} y output: {}", x_output, y_output);
 
                 Ok((x_output, y_output))
             }
@@ -146,16 +133,12 @@ fn main() {
                 let peice_result_unwrapped = peice_result.unwrap();
                 let dest_result_unwrapped = dest_result.unwrap();
 
-                println!("dest result: {:?}", dest_result_unwrapped);
-
                 peice_x = peice_result_unwrapped.0;
                 peice_y = peice_result_unwrapped.1;
 
                 dest_x = dest_result_unwrapped.0;
                 dest_y = dest_result_unwrapped.1;
             }
-
-            println!("peice x: {} peice y: {}", dest_x, dest_y);
 
             let move_result = game.move_peice(
                 BoardCoord::new(peice_x, peice_y),
@@ -164,14 +147,11 @@ fn main() {
 
             if move_result.is_err() {
                 println!("Unable to move peice: {}.", move_result.unwrap_err());
-            } else {
-                println!("it should've worked...");
             }
         } else if input.eq_ignore_ascii_case("exit") {
             println!("goodbye");
             break;
         } else if input.len() >= 5 && input[0..5].eq_ignore_ascii_case("debug") {
-
             let x_slice = &input[6..7];
             let y_slice = &input[8..9];
 
@@ -209,11 +189,21 @@ fn main() {
             }
 
             if x <= 7 && y <= 7 {
-                println!("peice at position {}-{}: {:?}", x, y, game.board.board[x][y]);
+                println!(
+                    "peice at position {}-{}: {:?}",
+                    x, y, game.board.board[x][y]
+                );
             } else {
                 println!("index out bounds");
             }
+        } else if input.eq_ignore_ascii_case("skip") {
+            
+            println!("ending turn...");
 
+            game.end_turn();
+
+        } else if input.eq("") {
+            continue;
         } else {
             println!("invalid input");
         }

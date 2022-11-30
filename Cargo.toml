@@ -1,5 +1,5 @@
 [package]
-name = "chess-bot"
+name = "chess-rs"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,5 +8,5 @@ edition = "2021"
 [dependencies]
 
 [[bin]]
-name = "chess-bot"
+name = "chess-rs"
 path = "src/main.rs"

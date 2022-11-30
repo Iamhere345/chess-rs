@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "chess-bot"
+name = "chess-rs"
 version = "0.1.0"

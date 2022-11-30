@@ -12,19 +12,19 @@ use crate::rules::can_move_peice;
 #[derive(Clone)]
 pub struct GameHandler {
     turn: Team,
+    game_over: bool,
     pub board: Board,
     pub points_map: HashMap<&'static str, i32>,
     pub black_points: i32,
     pub white_points: i32,
-    pub game_over: bool,
 }
 
 impl GameHandler {
-    pub fn new(points_map: HashMap<&'static str, i32>) -> GameHandler {
+    pub fn new(_points_map: HashMap<&'static str, i32>) -> GameHandler {
         GameHandler {
             turn: Team::White,
             board: Board::new(Team::Black),
-            points_map: points_map,
+            points_map: _points_map,
             black_points: 0,
             white_points: 0,
             game_over: false,
@@ -41,6 +41,10 @@ impl GameHandler {
 
     pub fn end_turn(&mut self) {
         self.turn = self.turn.flip();
+    }
+
+    pub fn playing_team(&self) -> &Team {
+        &self.turn
     }
 
     pub fn take_peice(&mut self, peice_coord: &BoardCoord) -> Result<(), String> {
@@ -61,7 +65,6 @@ impl GameHandler {
             PeiceType::Bishop => self.points_map.get("Bishop").unwrap_or(&0),
             PeiceType::King => self.points_map.get("King").unwrap_or(&0),
             PeiceType::Queen => self.points_map.get("Queen").unwrap_or(&0),
-            PeiceType::Empty => &0,
         };
 
         self.board.board[peice_coord.x][peice_coord.y] = None;
@@ -100,28 +103,21 @@ impl GameHandler {
                 return Err("Cannot move opponent's peice".to_string());
             }
 
-            let can_move_peice = can_move_peice(peice);
-
-            if can_move_peice.is_err() {
-                return Err(can_move_peice.unwrap_err());
-            }
-
             // checks if the peice at the given coord is the same team
             if self.board.board[move_coord.x][move_coord.y].is_some()
                 && self.board.board[move_coord.x][move_coord.y].unwrap().team == self.turn
             {
                 return Err("Cannot take your own peice".to_string());
             }
+            let can_move_peice = can_move_peice(&self.board, &peice, &move_coord);
 
-            println!("past checks");
-
+            if can_move_peice.is_err() {
+                return Err("Illegal Move".to_string());
+            }
             // checks if the peice at the target coord is the opposite team
             if self.board.board[move_coord.x][move_coord.y].is_some()
                 && self.board.board[move_coord.x][move_coord.y].unwrap().team != self.turn
             {
-
-                println!("### MOVE LEGAL ###");
-
                 let take_result = self.take_peice(&move_coord);
 
                 if take_result.is_err() {
@@ -134,23 +130,15 @@ impl GameHandler {
                 self.board.board[move_coord.x][move_coord.y] = Some(peice);
                 self.board.board[peice_coord.x][peice_coord.y] = None;
 
-                println!("***PEICE MOVED***");
-
                 self.end_turn();
             } else if self.board.board[move_coord.x][move_coord.y].is_none() {
-                
-                println!("### MOVE LEGAL ###");
-
                 peice.x_pos = move_coord.x;
                 peice.y_pos = move_coord.y;
 
                 self.board.board[move_coord.x][move_coord.y] = Some(peice);
                 self.board.board[peice_coord.x][peice_coord.y] = None;
-                
+
                 self.end_turn();
-
-                println!("***PEICE MOVED***");
-
             }
         }
 
